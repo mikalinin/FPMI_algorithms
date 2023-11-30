@@ -5,25 +5,24 @@
 #include <vector>
 
 class Tree {
+  std::vector<std::vector<long long>> tree_;
  public:
-  std::vector<std::vector<long long>> tree;
-
-  Tree(int size) { tree.resize(size); }
+  Tree(int size) { tree_.resize(size); }
 
   void Build(int vershina, int tl, int tr, std::vector<long long>& arr,
              int num) {
     if (tl == tr) {
       if (tl < num) {
-        tree[vershina].push_back(arr[tl]);
+        tree_[vershina].push_back(arr[tl]);
       }
       return;
     }
     int tm = (tl + tr) / 2;
     Build(2 * vershina, tl, tm, arr, num);
     Build(2 * vershina + 1, tm + 1, tr, arr, num);
-    std::merge(tree[2 * vershina].begin(), tree[2 * vershina].end(),
-               tree[2 * vershina + 1].begin(), tree[2 * vershina + 1].end(),
-               std::back_inserter(tree[vershina]));
+    std::merge(tree_[2 * vershina].begin(), tree_[2 * vershina].end(),
+               tree_[2 * vershina + 1].begin(), tree_[2 * vershina + 1].end(),
+               std::back_inserter(tree_[vershina]));
   }
 
   long long Get(int vershina, int tl, int tr, std::array<int, 4> query) {
@@ -31,12 +30,12 @@ class Tree {
       return 0;
     }
     if (query[0] <= tl && tr <= query[1]) {
-      int ind1 = std::upper_bound(tree[vershina].begin(), tree[vershina].end(),
+      int ind1 = std::upper_bound(tree_[vershina].begin(), tree_[vershina].end(),
                                   query[2] - 1) -
-                 tree[vershina].begin();
-      int ind2 = std::upper_bound(tree[vershina].begin(), tree[vershina].end(),
+                 tree_[vershina].begin();
+      int ind2 = std::upper_bound(tree_[vershina].begin(), tree_[vershina].end(),
                                   query[3]) -
-                 tree[vershina].begin();
+                 tree_[vershina].begin();
       return std::abs(ind2 - ind1);
     }
     int tm = (tl + tr) / 2;
