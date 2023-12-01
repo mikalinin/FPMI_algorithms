@@ -2,57 +2,60 @@
 #include <iostream>
 #include <queue>
 
-void Resize(std::deque<int>& deque, int& deque_size, std::queue<int>& queue,
-            int& queue_size) {
-  if (deque_size > queue_size) {
-    queue.push(deque.front());
-    deque.pop_front();
-    queue_size++;
-    deque_size--;
+class Qdequeue {
+  std::deque<int> deque_;
+  int deque_size_ = 0;
+  std::queue<int> queue_;
+  int queue_size_ = 0;
+
+  void Resize() {
+    if (deque_size_ > queue_size_) {
+      queue_.push(deque_.front());
+      deque_.pop_front();
+      queue_size_++;
+      deque_size_--;
+    }
   }
-}
 
-void Med(std::deque<int>& deque, int& deque_size, std::queue<int>& queue,
-         int& queue_size, int num) {
-  deque.push_front(num);
-  deque_size++;
-  Resize(deque, deque_size, queue, queue_size);
-}
+ public:
+  void Med(int num) {
+    deque_.push_front(num);
+    deque_size_++;
+    Resize();
+  }
 
-void Back(std::deque<int>& deque, int& deque_size, std::queue<int>& queue,
-          int& queue_size, int num) {
-  deque.push_back(num);
-  deque_size++;
-  Resize(deque, deque_size, queue, queue_size);
-}
+  void Back(int num) {
+    deque_.push_back(num);
+    deque_size_++;
+    Resize();
+  }
 
-void Extract(std::deque<int>& deque, int& deque_size, std::queue<int>& queue,
-             int& queue_size) {
-  std::cout << queue.front() << '\n';
-  queue.pop();
-  queue_size--;
-  Resize(deque, deque_size, queue, queue_size);
-}
+  int Extract() {
+    int ans;
+    ans = queue_.front();
+    queue_.pop();
+    queue_size_--;
+    Resize();
+    return ans;
+  }
+};
 
 int main() {
-  std::queue<int> queue;
-  std::deque<int> deque;
   int requests;
   std::cin >> requests;
   char oper;
   int elem;
-  int queue_size = 0;
-  int deque_size = 0;
-  for (int i = 0; i < requests; i++) {
+  Qdequeue struc;
+  for (int i = 0; i < requests; ++i) {
     std::cin >> oper;
     if (oper == '+') {
       std::cin >> elem;
-      Back(deque, deque_size, queue, queue_size, elem);
+      struc.Back(elem);
     } else if (oper == '*') {
       std::cin >> elem;
-      Med(deque, deque_size, queue, queue_size, elem);
+      struc.Med(elem);
     } else if (oper == '-') {
-      Extract(deque, deque_size, queue, queue_size);
+      std::cout << struc.Extract() << '\n';
     }
   }
   return 0;
