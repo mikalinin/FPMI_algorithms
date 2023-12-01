@@ -3,96 +3,98 @@
 #include <string>
 #include <vector>
 
-struct Pair {
-  long long value;
-  long long query;
-};
+class Heap {
+  struct Pair {
+    long long value;
+    long long query;
+  };
+  std::vector<Pair> heap_;
+  int size_ = 0;
+  std::vector<int> query_mas_;
 
-void SiftUp(std::vector<Pair>& heap, long long value,
-            std::vector<int>& query_mas) {
-  while (value != 1) {
-    if (heap[value].value < heap[value / 2].value) {
-      query_mas[heap[value].query] = value / 2;
-      query_mas[heap[value / 2].query] = value;
-      std::swap(heap[value], heap[value / 2]);
+ public:
+  Heap() {
+    heap_.push_back(Pair(0, 0));
+    const int kMaxind = 1000000;
+    query_mas_.resize(kMaxind);
+  }
+
+  void SiftUp(long long value) {
+    while (value != 1) {
+      if (heap_[value].value >= heap_[value / 2].value) {
+        break;
+      }
+      query_mas_[heap_[value].query] = value / 2;
+      query_mas_[heap_[value / 2].query] = value;
+      std::swap(heap_[value], heap_[value / 2]);
       value /= 2;
-    } else {
-      break;
     }
   }
-}
 
-void SiftDown(std::vector<Pair>& heap, long long value, int& size,
-              std::vector<int>& query_mas) {
-  while (2 * value <= size) {
-    long long new_ind = 2 * value;
-    if (2 * value + 1 <= size &&
-        heap[2 * value + 1].value < heap[2 * value].value) {
-      new_ind = 2 * value + 1;
-    }
-    if (heap[new_ind].value < heap[value].value) {
-      query_mas[heap[new_ind].query] = value;
-      query_mas[heap[value].query] = new_ind;
-      std::swap(heap[new_ind], heap[value]);
-      value = new_ind;
-    } else {
-      break;
+  void SiftDown(long long value) {
+    while (2 * value <= size_) {
+      long long new_ind = 2 * value;
+      if (2 * value + 1 <= size_ &&
+          heap_[2 * value + 1].value < heap_[2 * value].value) {
+        new_ind = 2 * value + 1;
+      }
+      if (heap_[new_ind].value < heap_[value].value) {
+        query_mas_[heap_[new_ind].query] = value;
+        query_mas_[heap_[value].query] = new_ind;
+        std::swap(heap_[new_ind], heap_[value]);
+        value = new_ind;
+      } else {
+        break;
+      }
     }
   }
-}
 
-long long GetMin(std::vector<Pair> heap) { return heap[1].value; }
+  long long GetMin() { return heap_[1].value; }
 
-void DecreaseKey(std::vector<Pair>& heap, long long query, long long delta,
-                 std::vector<int>& query_mas) {
-  heap[query_mas[query]].value -= delta;
-  SiftUp(heap, query_mas[query], query_mas);
-}
+  void DecreaseKey(long long query, long long delta) {
+    heap_[query_mas_[query]].value -= delta;
+    SiftUp(query_mas_[query]);
+  }
 
-void Insert(std::vector<Pair>& heap, long long value, int& size,
-            long long query, std::vector<int>& query_mas) {
-  heap.push_back(Pair(value, query));
-  size += 1;
-  query_mas[query] = size;
-  SiftUp(heap, size, query_mas);
-}
+  void Insert(long long value, long long query) {
+    heap_.push_back(Pair(value, query));
+    size_ += 1;
+    query_mas_[query] = size_;
+    SiftUp(size_);
+  }
 
-void ExtractMin(std::vector<Pair>& heap, int& size,
-                std::vector<int>& query_mas) {
-  heap[1] = heap[size];
-  query_mas[heap[size].query] = 1;
-  heap.pop_back();
-  size -= 1;
-  SiftDown(heap, 1, size, query_mas);
-}
+  void ExtractMin() {
+    heap_[1] = heap_[size_];
+    query_mas_[heap_[size_].query] = 1;
+    heap_.pop_back();
+    size_ -= 1;
+    SiftDown(1);
+  }
+};
 
 int main() {
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(0);
   std::cout.tie(0);
-  const int kMaxind = 1000000;
-  int size = 0;
-  std::vector<Pair> heap(1);
-  std::vector<int> query_mas(kMaxind);
-  heap[0] = Pair(0, 0);
+  Heap heap;
   std::string query;
   long long query_num;
   std::cin >> query_num;
-  for (long long i = 1; i <= query_num; i++) {
+  for (long long i = 1; i <= query_num; ++i) {
     std::cin >> query;
     if (query == "insert") {
       long long num;
       std::cin >> num;
-      Insert(heap, num, size, i, query_mas);
+      heap.Insert(num, i);
     } else if (query == "getMin") {
-      std::cout << GetMin(heap) << "\n";
+      std::cout << heap.GetMin() << "\n";
     } else if (query == "extractMin") {
-      ExtractMin(heap, size, query_mas);
+      heap.ExtractMin();
     } else if (query == "decreaseKey") {
       long long ind;
       long long delta;
       std::cin >> ind >> delta;
-      DecreaseKey(heap, ind, delta, query_mas);
+      heap.DecreaseKey(ind, delta);
     }
   }
   return 0;
