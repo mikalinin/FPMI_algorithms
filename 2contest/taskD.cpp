@@ -9,64 +9,54 @@ class Minqueue {
     int min;
   };
   std::stack<Pair> stack1_;
-  int stack1_size_ = 0;
   std::stack<Pair> stack2_;
-  int stack2_size_ = 0;
 
- public:
+public:
   void Enquery(int num) {
-    if (stack1_size_ == 0) {
+    if (stack1_.size() == 0) {
       stack1_.push(Pair(num, num));
-      ++stack1_size_;
     } else {
       int last_min = stack1_.top().min;
       stack1_.push(Pair(num, std::min(num, last_min)));
-      ++stack1_size_;
     }
   }
 
   int Dequeue() {
     int ans = 0;
-    if (stack2_size_ == 0) {
-      while (stack1_size_ > 0) {
+    if (stack2_.size() == 0) {
+      while (stack1_.size() > 0) {
         int elem = stack1_.top().elem;
         stack1_.pop();
-        --stack1_size_;
         int min = 0;
-        if (stack2_size_ == 0) {
+        if (stack2_.size() == 0) {
           min = elem;
         } else {
           min = std::min(elem, stack2_.top().min);
         }
         stack2_.push(Pair(elem, min));
-        ++stack2_size_;
       }
       ans = stack2_.top().elem;
       stack2_.pop();
-      --stack2_size_;
     } else {
       ans = stack2_.top().elem;
       stack2_.pop();
-      --stack2_size_;
     }
     return ans;
   }
 
   int Front() {
     int ans = 0;
-    if (stack2_size_ == 0) {
-      while (stack1_size_ > 0) {
+    if (stack2_.size() == 0) {
+      while (stack1_.size() > 0) {
         int elem = stack1_.top().elem;
         stack1_.pop();
-        --stack1_size_;
         int min = 0;
-        if (stack2_size_ == 0) {
+        if (stack2_.size() == 0) {
           min = elem;
         } else {
           min = std::min(elem, stack2_.top().min);
         }
         stack2_.push(Pair(elem, min));
-        ++stack2_size_;
       }
       ans = stack2_.top().elem;
     } else {
@@ -77,9 +67,9 @@ class Minqueue {
 
   int Min() {
     int ans = 0;
-    if (stack2_size_ == 0) {
+    if (stack2_.size() == 0) {
       ans = stack1_.top().min;
-    } else if (stack1_size_ == 0) {
+    } else if (stack1_.size() == 0) {
       ans = stack2_.top().min;
     } else {
       ans = std::min(stack1_.top().min, stack2_.top().min);
@@ -87,16 +77,14 @@ class Minqueue {
     return ans;
   }
 
-  int Size() const { return stack1_size_ + stack2_size_; }
+  int Size() const { return stack1_.size() + stack2_.size(); }
 
   void Clear() {
     std::stack<Pair>().swap(stack1_);
     std::stack<Pair>().swap(stack2_);
-    stack1_size_ = 0;
-    stack2_size_ = 0;
   }
 
-  bool IsVoid() const { return stack1_size_ == 0 && stack2_size_ == 0; }
+  bool IsVoid() const { return stack1_.size() == 0 && stack2_.size() == 0; }
 };
 
 int main() {
