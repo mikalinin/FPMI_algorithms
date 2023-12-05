@@ -5,24 +5,38 @@
 #include <vector>
 
 class Tree {
-  std::vector<std::vector<long long>> tree_;
- public:
-  Tree(int size) { tree_.resize(size); }
+  std::vector<std::vector<long long>> tree;
+  int size_;
+  int Size(int num) {
+    int count = 0;
+    while (num > 0) {
+      ++count;
+      num /= 2;
+    }
+    return pow(2, count);
+  }
+public:
+  Tree(int num) {
+    size_ = Size(num);
+    tree.resize(2 * size_ + 1); 
+  }
+  
+  int GetSize() { return size_; }
 
   void Build(int vershina, int tl, int tr, std::vector<long long>& arr,
              int num) {
     if (tl == tr) {
       if (tl < num) {
-        tree_[vershina].push_back(arr[tl]);
+        tree[vershina].push_back(arr[tl]);
       }
       return;
     }
     int tm = (tl + tr) / 2;
     Build(2 * vershina, tl, tm, arr, num);
     Build(2 * vershina + 1, tm + 1, tr, arr, num);
-    std::merge(tree_[2 * vershina].begin(), tree_[2 * vershina].end(),
-               tree_[2 * vershina + 1].begin(), tree_[2 * vershina + 1].end(),
-               std::back_inserter(tree_[vershina]));
+    std::merge(tree[2 * vershina].begin(), tree[2 * vershina].end(),
+               tree[2 * vershina + 1].begin(), tree[2 * vershina + 1].end(),
+               std::back_inserter(tree[vershina]));
   }
 
   long long Get(int vershina, int tl, int tr, std::array<int, 4> query) {
@@ -30,12 +44,12 @@ class Tree {
       return 0;
     }
     if (query[0] <= tl && tr <= query[1]) {
-      int ind1 = std::upper_bound(tree_[vershina].begin(), tree_[vershina].end(),
+      int ind1 = std::upper_bound(tree[vershina].begin(), tree[vershina].end(),
                                   query[2] - 1) -
-                 tree_[vershina].begin();
-      int ind2 = std::upper_bound(tree_[vershina].begin(), tree_[vershina].end(),
+                 tree[vershina].begin();
+      int ind2 = std::upper_bound(tree[vershina].begin(), tree[vershina].end(),
                                   query[3]) -
-                 tree_[vershina].begin();
+                 tree[vershina].begin();
       return std::abs(ind2 - ind1);
     }
     int tm = (tl + tr) / 2;
@@ -44,14 +58,7 @@ class Tree {
   }
 };
 
-int Size(int num) {
-  int count = 0;
-  while (num > 0) {
-    ++count;
-    num /= 2;
-  }
-  return pow(2, count);
-}
+
 
 int main() {
   std::ios_base::sync_with_stdio(false);
@@ -64,9 +71,8 @@ int main() {
   for (int i = 0; i < num; ++i) {
     std::cin >> arr[i];
   }
-  int size = Size(num);
-  Tree tr(2 * size + 1);
-  tr.Build(1, 0, size - 1, arr, num);
+  Tree tr(num);
+  tr.Build(1, 0, tr.GetSize() - 1, arr, num);
   for (int i = 0; i < query_num; ++i) {
     std::array<int, 4> query;
     std::cin >> query[0] >> query[1] >> query[2] >> query[3];
@@ -75,7 +81,7 @@ int main() {
     } else {
       --query[0];
       --query[1];
-      std::cout << tr.Get(1, 0, size - 1, query) << '\n';
+      std::cout << tr.Get(1, 0, tr.GetSize() - 1, query) << '\n';
     }
   }
   return 0;
